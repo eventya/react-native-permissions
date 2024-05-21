@@ -319,21 +319,6 @@ RCT_EXPORT_METHOD(openSettings:(RCTPromiseResolveBlock)resolve
   }];
 }
 
-RCT_EXPORT_METHOD(check:(NSString *)permission
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-  id<RNPermissionHandler> handler = [self handlerForPermission:permission];
-  NSString *lockId = [self lockHandler:handler];
-
-  [handler checkWithResolver:^(RNPermissionStatus status) {
-    resolve([self stringForStatus:status]);
-    [self unlockHandler:lockId];
-  } rejecter:^(NSError *error) {
-    reject([NSString stringWithFormat:@"%ld", (long)error.code], error.localizedDescription, error);
-    [self unlockHandler:lockId];
-  }];
-}
-
 RCT_EXPORT_METHOD(request:(NSString *)permission
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
@@ -421,10 +406,22 @@ RCT_EXPORT_METHOD(requestLocationAccuracy:(NSString * _Nonnull)purposeKey
 #endif
 }
 
-- (void)checkMultiple:(NSArray *)permissions
-              resolve:(RCTPromiseResolveBlock)resolve
-               reject:(RCTPromiseRejectBlock)reject {
-  reject(@"RNPermissions:checkMultiple", @"checkMultiple is not supported on iOS", nil);
+#if RCT_NEW_ARCH_ENABLED
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+  return std::make_shared<facebook::react::NativeRNPermissionsSpecJSI>(params);
+}
+
+- (facebook::react::ModuleConstants<JS::NativeRNPermissions::Constants::Builder>)getConstants {
+  return [self constantsToExport];
+}
+
+- (NSString *)check:(NSString *)permission {
+  return [self stringForStatus:[[self handlerForPermission:permission] check]];
+}
+
+- (NSDictionary *)checkMultiple:(NSArray *)permissions {
+  @throw [NSException exceptionWithName:@"RNPermissions:checkMultiple" reason:@"checkMultiple is not supported on iOS" userInfo:nil];
 }
 
 - (void)requestMultiple:(NSArray *)permissions
@@ -439,14 +436,10 @@ RCT_EXPORT_METHOD(requestLocationAccuracy:(NSString * _Nonnull)purposeKey
   reject(@"RNPermissions:shouldShowRequestRationale", @"shouldShowRequestRationale is not supported on iOS", nil);
 }
 
-#if RCT_NEW_ARCH_ENABLED
+#else
 
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::NativeRNPermissionsSpecJSI>(params);
-}
-
-- (facebook::react::ModuleConstants<JS::NativeRNPermissions::Constants::Builder>)getConstants {
-  return [self constantsToExport];
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(check: (NSString *)permission) {
+  return [self stringForStatus:[[self handlerForPermission:permission] check]];
 }
 
 #endif

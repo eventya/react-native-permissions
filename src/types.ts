@@ -1,3 +1,4 @@
+import type {Rationale as RationaleObject} from 'react-native';
 import type {AndroidPermissionMap} from './permissions.android';
 import type {IOSPermissionMap} from './permissions.ios';
 import type {WindowsPermissionMap} from './permissions.windows';
@@ -5,20 +6,18 @@ import {ResultMap} from './results';
 
 type Values<T extends object> = T[keyof T];
 
-export type {Rationale} from 'react-native';
-
 export type AndroidPermission = Values<AndroidPermissionMap>;
 export type IOSPermission = Values<IOSPermissionMap>;
 export type WindowsPermission = Values<WindowsPermissionMap>;
 export type Permission = AndroidPermission | IOSPermission | WindowsPermission;
 
+export type LocationAccuracy = 'full' | 'reduced';
 export type PermissionStatus = Values<ResultMap>;
+export type Rationale = RationaleObject | (() => Promise<boolean>);
 
 export type LocationAccuracyOptions = {
   purposeKey: string;
 };
-
-export type LocationAccuracy = 'full' | 'reduced';
 
 export type NotificationOption =
   | 'alert'

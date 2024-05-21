@@ -7,25 +7,18 @@ type NotificationsResponse = {
 };
 
 export interface Spec extends TurboModule {
-  getConstants(): {
-    available: string[];
-  };
-
-  openSettings(): Promise<void>;
-  check(permission: string): Promise<string>;
-  checkNotifications(): Promise<NotificationsResponse>;
-  request(permission: string): Promise<string>;
-  requestNotifications(options: string[]): Promise<NotificationsResponse>;
-
-  // Android only part
-  checkMultiple(permissions: string[]): Promise<Object>;
-  requestMultiple(permissions: string[]): Promise<Object>;
-  shouldShowRequestRationale(permission: string): Promise<boolean>;
-
-  // iOS only part
+  getConstants(): {available: string[]};
+  check(permission: string): string;
   checkLocationAccuracy(): Promise<string>;
+  checkMultiple(permissions: string[]): Object;
+  checkNotifications(): Promise<NotificationsResponse>;
   openPhotoPicker(): Promise<boolean>;
+  openSettings(): Promise<void>;
+  request(permission: string): Promise<string>;
   requestLocationAccuracy(purposeKey: string): Promise<string>;
+  requestMultiple(permissions: string[]): Promise<Object>;
+  requestNotifications(options: string[]): Promise<NotificationsResponse>;
+  shouldShowRequestRationale(permission: string): Promise<boolean>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('RNPermissions');

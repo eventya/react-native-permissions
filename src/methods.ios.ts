@@ -1,96 +1,82 @@
-import type {Contract} from './contract';
 import NativeModule from './NativeRNPermissions';
+import type {Contract} from './contract';
 import {RESULTS} from './results';
-import type {
-  LocationAccuracy,
-  LocationAccuracyOptions,
-  NotificationOption,
-  NotificationsResponse,
-  Permission,
-  PermissionStatus,
-} from './types';
+import type {LocationAccuracy, NotificationsResponse, PermissionStatus} from './types';
 import {uniq} from './utils';
 
 let available: string[] | undefined = undefined;
 
-function getAvailable(): string[] {
+const isAvailable = (permission: string): boolean => {
   if (available == null) {
-    available = NativeModule.getConstants().available;
+    const constants = NativeModule.getConstants();
+    available = constants.available;
   }
 
-  return available;
-}
+  return available.includes(permission);
+};
 
-async function openPhotoPicker(): Promise<void> {
+const openPhotoPicker: Contract['openPhotoPicker'] = async () => {
   await NativeModule.openPhotoPicker();
-}
+};
 
-async function openSettings(): Promise<void> {
+const openSettings: Contract['openSettings'] = async () => {
   await NativeModule.openSettings();
-}
+};
 
-async function check(permission: Permission): Promise<PermissionStatus> {
-  return getAvailable().includes(permission)
-    ? (NativeModule.check(permission) as Promise<PermissionStatus>)
+const check: Contract['check'] = (permission) => {
+  return isAvailable(permission)
+    ? (NativeModule.check(permission) as PermissionStatus)
     : RESULTS.UNAVAILABLE;
-}
+};
 
-async function request(permission: Permission): Promise<PermissionStatus> {
-  return getAvailable().includes(permission)
-    ? (NativeModule.request(permission) as Promise<PermissionStatus>)
-    : RESULTS.UNAVAILABLE;
-}
+const request: Contract['request'] = async (permission) => {
+  if (!isAvailable(permission)) {
+    return RESULTS.UNAVAILABLE;
+  }
 
-function checkLocationAccuracy(): Promise<LocationAccuracy> {
-  return NativeModule.checkLocationAccuracy() as Promise<LocationAccuracy>;
-}
+  const status = (await NativeModule.request(permission)) as PermissionStatus;
+  return status;
+};
 
-function requestLocationAccuracy(options: LocationAccuracyOptions): Promise<LocationAccuracy> {
-  return NativeModule.requestLocationAccuracy(options.purposeKey) as Promise<LocationAccuracy>;
-}
+const checkLocationAccuracy: Contract['checkLocationAccuracy'] = async () => {
+  const accuracy = (await NativeModule.checkLocationAccuracy()) as LocationAccuracy;
+  return accuracy;
+};
 
-export function checkNotifications(): Promise<NotificationsResponse> {
-  return NativeModule.checkNotifications() as Promise<NotificationsResponse>;
-}
+const requestLocationAccuracy: Contract['requestLocationAccuracy'] = async ({purposeKey}) => {
+  const accuracy = (await NativeModule.requestLocationAccuracy(purposeKey)) as LocationAccuracy;
+  return accuracy;
+};
 
-export function requestNotifications(
-  options: NotificationOption[],
-): Promise<NotificationsResponse> {
-  return NativeModule.requestNotifications(options) as Promise<NotificationsResponse>;
-}
+const checkNotifications: Contract['checkNotifications'] = async () => {
+  const response = (await NativeModule.checkNotifications()) as NotificationsResponse;
+  return response;
+};
 
-async function checkMultiple<P extends Permission[]>(
-  permissions: P,
-): Promise<Record<P[number], PermissionStatus>> {
-  type Output = Record<P[number], PermissionStatus>;
+const requestNotifications: Contract['requestNotifications'] = async (options) => {
+  const response = (await NativeModule.requestNotifications(options)) as NotificationsResponse;
+  return response;
+};
 
-  const output: Partial<Output> = {};
-  const dedup = uniq(permissions);
+const checkMultiple: Contract['checkMultiple'] = (permissions) => {
+  const output: Record<string, string> = {};
 
-  await Promise.all(
-    dedup.map(async (permission: P[number]) => {
-      output[permission] = await check(permission);
-    }),
-  );
+  for (const permission of uniq(permissions)) {
+    output[permission] = check(permission);
+  }
 
-  return output as Output;
-}
+  return output as ReturnType<Contract['checkMultiple']>;
+};
 
-async function requestMultiple<P extends Permission[]>(
-  permissions: P,
-): Promise<Record<P[number], PermissionStatus>> {
-  type Output = Record<P[number], PermissionStatus>;
+const requestMultiple: Contract['requestMultiple'] = async (permissions) => {
+  const output: Record<string, string> = {};
 
-  const output: Partial<Output> = {};
-  const dedup = uniq(permissions);
-
-  for (let index = 0; index < dedup.length; index++) {
-    const permission = dedup[index] as P[number];
+  for (const permission of uniq(permissions)) {
     output[permission] = await request(permission);
   }
 
-  return output as Output;
-}
+  return output as Awaited<ReturnType<Contract['requestMultiple']>>;
+};
 
 export const methods: Contract = {
   check,

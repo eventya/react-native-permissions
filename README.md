@@ -515,7 +515,6 @@ PERMISSIONS.ANDROID.CALL_PHONE;
 PERMISSIONS.ANDROID.CAMERA;
 PERMISSIONS.ANDROID.GET_ACCOUNTS;
 PERMISSIONS.ANDROID.NEARBY_WIFI_DEVICES;
-PERMISSIONS.ANDROID.POST_NOTIFICATIONS;
 PERMISSIONS.ANDROID.PROCESS_OUTGOING_CALLS;
 PERMISSIONS.ANDROID.READ_CALENDAR;
 PERMISSIONS.ANDROID.READ_CALL_LOG;
@@ -749,35 +748,31 @@ Check one permission status.
 _⚠️  Android will never return `blocked` on `check`, you have to call `request` to get the info._
 
 ```ts
-function check(permission: string): Promise<PermissionStatus>;
+function check(permission: string): PermissionStatus;
 ```
 
 ```js
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
-check(PERMISSIONS.IOS.LOCATION_ALWAYS)
-  .then((result) => {
-    switch (result) {
-      case RESULTS.UNAVAILABLE:
-        console.log('This feature is not available (on this device / in this context)');
-        break;
-      case RESULTS.DENIED:
-        console.log('The permission has not been requested / is denied but requestable');
-        break;
-      case RESULTS.LIMITED:
-        console.log('The permission is limited: some actions are possible');
-        break;
-      case RESULTS.GRANTED:
-        console.log('The permission is granted');
-        break;
-      case RESULTS.BLOCKED:
-        console.log('The permission is denied and not requestable anymore');
-        break;
-    }
-  })
-  .catch((error) => {
-    // …
-  });
+const status = check(PERMISSIONS.IOS.LOCATION_ALWAYS);
+
+switch (status) {
+  case RESULTS.UNAVAILABLE:
+    console.log('This feature is not available (on this device / in this context)');
+    break;
+  case RESULTS.DENIED:
+    console.log('The permission has not been requested / is denied but requestable');
+    break;
+  case RESULTS.LIMITED:
+    console.log('The permission is limited: some actions are possible');
+    break;
+  case RESULTS.GRANTED:
+    console.log('The permission is granted');
+    break;
+  case RESULTS.BLOCKED:
+    console.log('The permission is denied and not requestable anymore');
+    break;
+}
 ```
 
 #### request
@@ -787,7 +782,7 @@ Request one permission.
 The `rationale` is only available and used on Android. It can be a native alert (a `Rationale` object) or a custom implementation (that resolves with a `boolean`).
 
 ```ts
-type Rationale = {
+type RationaleObject = {
   title: string;
   message: string;
   buttonPositive?: string;
@@ -795,10 +790,9 @@ type Rationale = {
   buttonNeutral?: string;
 };
 
-function request(
-  permission: string,
-  rationale?: Rationale | (() => Promise<boolean>),
-): Promise<PermissionStatus>;
+type Rationale = RationaleObject | (() => Promise<boolean>);
+
+function request(permission: string, rationale?: Rationale): Promise<PermissionStatus>;
 ```
 
 ```js
@@ -874,7 +868,10 @@ type NotificationSettings = {
   notificationCenter?: boolean;
 };
 
-function requestNotifications(options: NotificationOption[]): Promise<{
+function requestNotifications(
+  options: NotificationOption[],
+  rationale?: Rationale,
+): Promise<{
   status: PermissionStatus;
   settings: NotificationSettings;
 }>;
@@ -895,18 +892,16 @@ Check multiples permissions in parallel.
 _⚠️  Android will never return `blocked` on `checkMultiple`, you have to call `requestMultiple` to get the info._
 
 ```ts
-function checkMultiple<P extends Permission[]>(
-  permissions: P,
-): Promise<Record<P[number], PermissionStatus>>;
+function checkMultiple<P extends Permission[]>(permissions: P): Record<P[number], PermissionStatus>;
 ```
 
 ```js
 import {checkMultiple, PERMISSIONS} from 'react-native-permissions';
 
-checkMultiple([PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.FACE_ID]).then((statuses) => {
-  console.log('Camera', statuses[PERMISSIONS.IOS.CAMERA]);
-  console.log('FaceID', statuses[PERMISSIONS.IOS.FACE_ID]);
-});
+const statuses = checkMultiple([PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.FACE_ID]);
+
+console.log('Camera', statuses[PERMISSIONS.IOS.CAMERA]);
+console.log('FaceID', statuses[PERMISSIONS.IOS.FACE_ID]);
 ```
 
 #### requestMultiple

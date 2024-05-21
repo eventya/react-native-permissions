@@ -11,6 +11,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.PermissionListener;
 
@@ -43,9 +44,9 @@ public class RNPermissionsModule extends ReactContextBaseJavaModule implements P
     RNPermissionsModuleImpl.openSettings(getReactApplicationContext(), promise);
   }
 
-  @ReactMethod
-  public void check(String permission, Promise promise) {
-    RNPermissionsModuleImpl.check(getReactApplicationContext(), permission, promise);
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public String check(String permission, Promise promise) {
+    return RNPermissionsModuleImpl.check(getReactApplicationContext(), permission);
   }
 
   @ReactMethod
@@ -53,9 +54,9 @@ public class RNPermissionsModule extends ReactContextBaseJavaModule implements P
     RNPermissionsModuleImpl.checkNotifications(getReactApplicationContext(), promise);
   }
 
-  @ReactMethod
-  public void checkMultiple(ReadableArray permissions, Promise promise) {
-    RNPermissionsModuleImpl.checkMultiple(getReactApplicationContext(), permissions, promise);
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public WritableMap checkMultiple(ReadableArray permissions, Promise promise) {
+    return RNPermissionsModuleImpl.checkMultiple(getReactApplicationContext(), permissions);
   }
 
   @ReactMethod

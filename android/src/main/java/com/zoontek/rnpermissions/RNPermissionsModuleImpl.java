@@ -93,30 +93,27 @@ public class RNPermissionsModuleImpl {
     }
   }
 
-  public static void check(
+  public static String check(
     final ReactApplicationContext reactContext,
-    final String permission,
-    final Promise promise
+    final String permission
   ) {
     if (permission == null || isPermissionUnavailable(permission)) {
-      promise.resolve(UNAVAILABLE);
-      return;
+      return UNAVAILABLE;
     }
 
     Context context = reactContext.getBaseContext();
 
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      promise.resolve(context.checkPermission(permission, Process.myPid(), Process.myUid())
+      return context.checkPermission(permission, Process.myPid(), Process.myUid())
         == PackageManager.PERMISSION_GRANTED
         ? GRANTED
-        : BLOCKED);
-      return;
+        : BLOCKED;
     }
 
     if (context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
-      promise.resolve(GRANTED);
+      return GRANTED;
     } else {
-      promise.resolve(DENIED);
+      return DENIED;
     }
   }
 
@@ -127,10 +124,9 @@ public class RNPermissionsModuleImpl {
     promise.resolve(getLegacyNotificationsResponse(reactContext, DENIED));
   }
 
-  public static void checkMultiple(
+  public static WritableMap checkMultiple(
     final ReactApplicationContext reactContext,
-    final ReadableArray permissions,
-    final Promise promise
+    final ReadableArray permissions
   ) {
     final WritableMap output = new WritableNativeMap();
     Context context = reactContext.getBaseContext();
@@ -154,7 +150,7 @@ public class RNPermissionsModuleImpl {
       }
     }
 
-    promise.resolve(output);
+    return output;
   }
 
   public static void request(

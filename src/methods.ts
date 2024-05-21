@@ -1,31 +1,38 @@
 import type {Contract} from './contract';
 import {RESULTS} from './results';
-import type {NotificationsResponse, Permission, PermissionStatus} from './types';
 import {
   checkLocationAccuracy,
   openPhotoPicker,
   requestLocationAccuracy,
-} from './unsupportedPlatformMethods';
+} from './unsupportedMethods';
 
-async function check(): Promise<PermissionStatus> {
+const openSettings: Contract['openSettings'] = async () => {};
+
+const check: Contract['check'] = () => {
   return RESULTS.UNAVAILABLE;
-}
+};
 
-async function checkNotifications(): Promise<NotificationsResponse> {
+const request: Contract['request'] = async () => {
+  return RESULTS.UNAVAILABLE;
+};
+
+const checkNotifications: Contract['checkNotifications'] = async () => {
   return {status: RESULTS.UNAVAILABLE, settings: {}};
-}
+};
 
-async function checkMultiple<P extends Permission[]>(
-  permissions: P,
-): Promise<Record<P[number], PermissionStatus>> {
-  return permissions.reduce(
-    (acc, permission: P[number]) => {
-      acc[permission] = RESULTS.UNAVAILABLE;
-      return acc;
-    },
-    {} as Record<P[number], PermissionStatus>,
-  );
-}
+const checkMultiple: Contract['checkMultiple'] = (permissions) => {
+  const output: Record<string, string> = {};
+
+  for (const permission of permissions) {
+    output[permission] = RESULTS.UNAVAILABLE;
+  }
+
+  return output as ReturnType<Contract['checkMultiple']>;
+};
+
+const requestMultiple: Contract['requestMultiple'] = async (permissions) => {
+  return checkMultiple(permissions);
+};
 
 export const methods: Contract = {
   check,
@@ -33,9 +40,9 @@ export const methods: Contract = {
   checkMultiple,
   checkNotifications,
   openPhotoPicker,
-  openSettings: Promise.reject,
-  request: check,
+  openSettings,
+  request,
   requestLocationAccuracy,
-  requestMultiple: checkMultiple,
+  requestMultiple,
   requestNotifications: checkNotifications,
 };

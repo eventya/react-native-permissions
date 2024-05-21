@@ -32,15 +32,14 @@
   }
 }
 
-- (void)checkWithResolver:(void (^ _Nonnull)(RNPermissionStatus))resolve
-                 rejecter:(void (__unused ^ _Nonnull)(NSError * _Nonnull))reject {
+- (RNPermissionStatus)check {
   if (@available(iOS 14.0, *)) {
-    resolve([self convertStatus:[ATTrackingManager trackingAuthorizationStatus]]);
+    return [self convertStatus:[ATTrackingManager trackingAuthorizationStatus]];
   } else {
     if ([[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled]) {
-      resolve(RNPermissionStatusAuthorized);
+      return RNPermissionStatusAuthorized;
     } else {
-      resolve(RNPermissionStatusDenied);
+      return RNPermissionStatusDenied;
     }
   }
 }
@@ -49,7 +48,7 @@
                    rejecter:(void (^ _Nonnull)(NSError * _Nonnull))reject {
   if (@available(iOS 14.0, *)) {
     if ([ATTrackingManager trackingAuthorizationStatus] != ATTrackingManagerAuthorizationStatusNotDetermined) {
-      return [self checkWithResolver:resolve rejecter:reject];
+      return resolve([self check]);
     }
 
     if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
@@ -65,7 +64,7 @@
                                                  object:nil];
     }
   } else {
-    [self checkWithResolver:resolve rejecter:reject];
+    resolve([self check]);
   }
 }
 

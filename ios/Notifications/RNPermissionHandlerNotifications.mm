@@ -2,13 +2,6 @@
 
 #import <UserNotifications/UserNotifications.h>
 
-@interface RNPermissionHandlerNotifications()
-
-@property (nonatomic, strong) void (^resolve)(RNPermissionStatus status, NSDictionary * _Nonnull settings);
-@property (nonatomic, strong) void (^reject)(NSError *error);
-
-@end
-
 @implementation RNPermissionHandlerNotifications
 
 + (NSString * _Nonnull)handlerUniqueId {
