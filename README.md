@@ -779,7 +779,7 @@ switch (status) {
 
 Request one permission.
 
-The `rationale` is only available and used on Android. It can be a native alert (a `Rationale` object) or a custom implementation (that resolves with a `boolean`).
+The `rationale` is only available and used on Android. It can be a native alert (a `RationaleObject`) or a custom implementation (that resolves with a `boolean`).
 
 ```ts
 type RationaleObject = {
@@ -841,7 +841,9 @@ checkNotifications().then(({status, settings}) => {
 Request notifications permission status and get notifications settings values.
 
 - You have to [target at least SDK 33](https://github.com/zoontek/react-native-permissions/releases/tag/3.5.0) to perform request on Android 13+.
-- You cannot request notifications permissions on Windows. Disabling / enabling them can only be done through the App Settings.
+- You cannot request notifications permissions on Windows. Disabling / enabling them can only be done through the app settings.
+
+The `rationale` is only available and used on Android. It can be a native alert (a `RationaleObject`) or a custom implementation (that resolves with a `boolean`).
 
 ```ts
 // only used on iOS
