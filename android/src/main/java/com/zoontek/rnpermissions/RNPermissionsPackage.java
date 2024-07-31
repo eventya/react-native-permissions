@@ -25,22 +25,25 @@ public class RNPermissionsPackage extends TurboReactPackage {
 
   @Override
   public ReactModuleInfoProvider getReactModuleInfoProvider() {
-    return () -> {
-      final Map<String, ReactModuleInfo> moduleInfos = new HashMap<>();
-      boolean isTurboModule = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
+    return new ReactModuleInfoProvider() {
+        @Override
+        public Map<String, ReactModuleInfo> getReactModuleInfos() {
+            final Map<String, ReactModuleInfo> moduleInfos = new HashMap<>();
+            boolean isTurboModule = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
 
-      ReactModuleInfo moduleInfo = new ReactModuleInfo(
-        RNPermissionsModuleImpl.NAME,
-        RNPermissionsModuleImpl.NAME,
-        false,
-        false,
-        true,
-        false,
-        isTurboModule
-      );
+            ReactModuleInfo moduleInfo = new ReactModuleInfo(
+                    RNPermissionsModuleImpl.NAME,
+                    RNPermissionsModuleImpl.NAME,
+                    false,
+                    false,
+                    true,
+                    false,
+                    isTurboModule
+            );
 
-      moduleInfos.put(RNPermissionsModuleImpl.NAME, moduleInfo);
-      return moduleInfos;
+            moduleInfos.put(RNPermissionsModuleImpl.NAME, moduleInfo);
+            return moduleInfos;
+        }
     };
   }
 }

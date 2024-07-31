@@ -1113,7 +1113,7 @@ PODS:
     - React-jsi (= 0.73.4)
     - React-logger (= 0.73.4)
     - React-perflogger (= 0.73.4)
-  - RNPermissions (4.1.5):
+  - RNPermissions (4.1.6):
     - React-Core
   - RNVectorIcons (10.0.3):
     - glog
