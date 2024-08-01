@@ -3,6 +3,12 @@
 module.exports = {
   root: true,
 
+  settings: {
+    node: {
+      tryExtensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
+    },
+  },
+
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint', 'react', 'react-hooks'],
 
