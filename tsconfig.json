@@ -5,6 +5,8 @@
     "jsx": "react-native",
     "moduleResolution": "Node",
 
+    "preserveSymlinks": true,
+
     "allowJs": false,
     "strict": true,
     "declaration": true,
